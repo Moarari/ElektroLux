@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bytový Elektro Plánovač v1.4</title>
+    <title>Bytový Elektro Plánovač v1.4 - Opravený</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { margin: 0; display: flex; height: 100vh; background-color: #1e1e24; color: #fff; }
+        body { margin: 0; display: flex; height: 100vh; background-color: #1e1e24; color: #fff; overflow: hidden; }
         
         /* Bočný panel */
         #sidebar {
             width: 320px; background-color: #111116; padding: 20px; 
             display: flex; flex-direction: column; gap: 12px;
-            box-shadow: 3px 0 10px rgba(0,0,0,0.5); z-index: 10; overflow-y: auto;
+            box-shadow: 3px 0 10px rgba(0,0,0,0.5); z-index: 10; overflow-y: auto; height: 100vh;
         }
         #sidebar h3 { margin-top: 0; border-bottom: 2px solid #2a2a35; padding-bottom: 10px; color: #3498db; }
         
         .btn {
             padding: 12px; background-color: #3498db; color: white; border: none;
             border-radius: 6px; cursor: pointer; text-align: center; font-weight: bold;
-            transition: background 0.2s; text-transform: uppercase; font-size: 11px;
+            transition: background 0.2s; text-transform: uppercase; font-size: 11px; width: 100%;
         }
         .btn:hover { background-color: #2980b9; }
         .btn.active { background-color: #e74c3c; }
@@ -28,30 +28,21 @@
         .component-source {
             padding: 10px; background-color: #22222b; border: 1px solid #3a3a4a;
             border-radius: 6px; cursor: grab; display: flex; align-items: center; gap: 15px;
-            font-weight: 500; user-select: none; font-size: 13px;
+            font-weight: 500; user-select: none; font-size: 13px; color: #fff;
         }
         .component-source:hover { background-color: #2a2a35; border-color: #3498db; }
 
-        /* CSS Definícia značiek */
-        .sym { position: relative; width: 30px; height: 30px; flex-shrink: 0; }
+        /* Vizuálne CSS značky */
+        .sym { position: relative; width: 30px; height: 30px; flex-shrink: 0; display: inline-block; }
         
         .sym-rozvadzac { border: 2px solid #ff4757; background: rgba(255, 71, 87, 0.2); }
         .sym-rozvadzac::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #ff4757; transform: translateX(-50%); }
         
-        .sym-zasuvka { height: 15px; border: 2px solid #2ecc71; border-radius: 0 0 15px 15px; border-top: none; margin-top: 5px; }
+        .sym-zasuvka { height: 15px; border: 2px solid #2ecc71; border-radius: 0 0 15px 15px; border-top: none; margin-top: 8px; }
         .sym-zasuvka::after { content: ''; position: absolute; left: 50%; bottom: -10px; width: 2px; height: 10px; background: #2ecc71; transform: translateX(-50%); }
         
         .sym-svetlo::before, .sym-svetlo::after { content: ''; position: absolute; background: #f1c40f; }
         .sym-svetlo::before { left: 0; top: 14px; width: 30px; height: 2px; transform: rotate(45deg); }
         .sym-svetlo::after { left: 0; top: 14px; width: 30px; height: 2px; transform: rotate(-45deg); }
         
-        .sym-vypinac1 { width: 12px; height: 12px; border: 2px solid #9b59b6; border-radius: 50%; margin: 9px; }
-        .sym-vypinac1::after { content: ''; position: absolute; left: 4px; top: -7px; width: 2px; height: 10px; background: #9b59b6; }
-        .sym-vypinac1::before { content: ''; position: absolute; left: 4px; top: -7px; width: 6px; height: 2px; background: #9b59b6; }
-
-        .sym-vypinac5 { width: 12px; height: 12px; border: 2px solid #e67e22; border-radius: 50%; margin: 9px; }
-        .sym-vypinac5::after { content: ''; position: absolute; left: 4px; top: -7px; width: 2px; height: 10px; background: #e67e22; }
-        .sym-vypinac5::before { content: ''; position: absolute; left: 4px; top: -7px; width: 6px; height: 2px; background: #e67e22; box-shadow: 0 4px 0 #e67e22; }
-
-        .sym-vypinac6 { width: 12px; height: 12px; border: 2px solid #00d2d3; border-radius: 50%; margin: 9px; }
-        .sym-vypinac6::after { content: ''; position: absolute; left: 4px; top: -7px; width: 2px; height: 22px; background: #00d2d3; }
+        .sym-vypinac1 { width: 12px; height: 12px; border: 2px solid
