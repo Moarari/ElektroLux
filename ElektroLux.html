@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plánovač Elektroinštalácie</title>
+    <style>
+        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { margin: 0; display: flex; height: 100vh; background-color: #f0f2f5; }
+        
+        /* Bočný panel */
+        #sidebar {
+            width: 250px; background-color: #2c3e50; color: white;
+            padding: 20px; display: flex; flex-direction: column; gap: 15px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2); z-index: 10;
+        }
+        #sidebar h3 { margin-top: 0; border-bottom: 2px solid #34495e; padding-bottom: 10px; }
+        
+        .btn {
+            padding: 10px; background-color: #3498db; color: white; border: none;
+            border-radius: 5px; cursor: pointer; text-align: center; font-weight: bold;
+        }
+        .btn:hover { background-color: #2980b9; }
+        .btn.active { background-color: #e74c3c; }
+
+        /* Súčiastky na ťahanie */
+        .component-source {
+            padding: 12px; background-color: #34495e; border: 2px dashed #bdc3c7;
+            border-radius: 5px; cursor: grab; text-align: center; font-weight: bold;
+            user-select: none;
+        }
+        .component-source:hover { background-color: #4e6a85; }
+
+        /* Hlavná plocha */
+        #canvas-container {
+            flex-grow: 1; position: relative; overflow: auto;
+            display: flex; align-items: flex-start; justify-content: flex-start; padding: 20px;
+        }
+        #canvas-wrapper { position: relative; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        #bg-image { max-width: 100%; display: block; user-select: none; pointer-events: none; }
+        
+        /* Kresliace plátno na káble */
+        #cable-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
+
+        /* Umiestnené súčiastky na pláne */
+        .placed-component {
+            position: absolute; width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: bold; color: white; cursor: pointer;
+            z-index: 3; transform: translate(-50%, -50%); box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            user-select: none;
+        }
+        /* Farebné rozlíšenie súčiastok */
+        .comp-istic { background-color: #e74c3c; }
+        .comp-zasuvka { background-color: #2ecc71; color: #000; }
+        .comp-svetlo { background-color: #f1c40f; color: #000; }
+        .comp-vypinac { background-color: #9b59b6; }
+
+        #file-input { display: none; }
+        .instructions { font-size: 12px; color: #bdc3c7; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h3>Elektro Plánovač</h3>
+        
+        <label for="file-input" class="btn">1. Načítať pôdorys</label>
+        <input type="file" id="file-input" accept="image/*">
+
+        <hr style="width:100%; border:1px solid #34495e;">
+        
+        <div class="component-source" draggable="true" data-type="istic">⚠️ Istič</div>
+        <div class="component-source" draggable="true" data-type="zasuvka">🔌 Zásuvka</div>
+        <div class="component-source" draggable="true" data-type="svetlo">💡 Svetlo</div>
+        <div class="component-source" draggable="true" data-type="vypinac">🎛️ Vypínač</div>
+
+        <hr style="width:100%; border:1px solid #34495e;">
+
+        <button id="cable-btn" class="btn">🔌 Režim: Kábel</button>
+        
+        <div class="instructions">
+            <p><strong>Návod:</strong></p>
+            <ul>
+                <li>Presuň súčiastku ťahaním na plán.</li>
+                <li>Kliknutím na súčiastku ju vymažeš.</li>
+                <li>Zapni "Režim: Kábel" a kliknutím na dve súčiastky ich prepojíš.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="canvas-container">
+        <div id="canvas-wrapper" id="drop-zone">
+            <img id="bg-image" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='100%' height='100%' fill='%23ffffff'/><text x='50%' y='50%' font-family='Arial' font-size='24' fill='%23cccccc' text-anchor='middle'>Najprv načítaj pôdorys (obrázok)</text></svg>" alt="Pôdorys">
+            <canvas id="cable-canvas"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const bgImage = document.getElementById('bg-image');
+        const canvasWrapper = document.getElementById('canvas-wrapper');
+        const canvas = document.getElementById('cable-canvas');
+        const ctx = canvas.getContext('2d');
+        const cableBtn = document.getElementById('cable-btn');
+        const componentSources = document.querySelectorAll('.component-source');
+
+        let draggedType = null;
+        let isCableMode = false;
+        let selectedComponentForCable = null;
+        let components = []; // Zoznam umiestnených súčiastok
+        let cables = [];     // Zoznam prepojení (káblov)
+        let compIdCounter = 0;
+
+        // 1. Načítanie obrázka pôdorysu
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    bgImage.src = event.target.result;
+                    bgImage.onload = function() {
+                        // Prispôsobenie plátna veľkosti obrázka
+                        canvas.width = bgImage.clientWidth;
+                        canvas.height = bgImage.clientHeight;
+                        redrawCables();
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 2. Drag & Drop logika (Ťahanie súčiastok)
+        componentSources.forEach(source => {
+            source.addEventListener('dragstart', (e) => {
+                draggedType = source.getAttribute('data-type');
+            });
+        });
+
+        canvasWrapper.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        canvasWrapper.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (!draggedType) return;
+
+            const rect = canvasWrapper.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            createComponent(x, y, draggedType);
+            draggedType = null;
+        });
+
+        // 3. Vytvorenie súčiastky na pláne
+        function createComponent(x, y, type) {
+            const id = 'comp_' + compIdCounter++;
+            const el = document.createElement('div');
+            el.className = `placed-component comp-${type}`;
+            el.id = id;
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+            
+            // Ikony/Skratky
+            const icons = { istic: 'IST', zasuvka: 'ZAS', svetlo: 'SV', vypinac: 'VYP' };
+            el.innerText = icons[type];
+
+            // Kliknutie na súčiastku (Kábel alebo Vymazanie)
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (isCableMode) {
+                    handleCableConnection(id);
+                } else {
+                    // Režim mazania
+                    removeComponent(id);
+                }
+            });
+
+            canvasWrapper.appendChild(el);
+            components.push({ id, x, type, y });
+        }
+
+        // 4. Logika prepájania káblami
+        cableBtn.addEventListener('click', () => {
+            isCableMode = !isCableMode;
+            if (isCableMode) {
+                cableBtn.classList.add('active');
+                cableBtn.innerText = "Režim: Spájaj klikom";
+            } else {
+                cableBtn.classList.remove('active');
+                cableBtn.innerText = "Režim: Kábel";
+                selectedComponentForCable = null;
+            }
+        });
+
+        function handleCableConnection(id) {
+            if (!selectedComponentForCable) {
+                selectedComponentForCable = id;
+                document.getElementById(id).style.border = "2px solid white";
+            } else {
+                if (selectedComponentForCable !== id) {
+                    // Vytvor spojenie
+                    cables.push({ from: selectedComponentForCable, to: id });
+                    redrawCables();
+                }
+                document.getElementById(selectedComponentForCable).style.border = "none";
+                selectedComponentForCable = null;
+            }
+        }
+
+        // Prekreslenie káblov na plátne
+        function redrawCables() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "#34495e"; // farba kábla
+
+            cables.forEach(cable => {
+                const compFrom = components.find(c => c.id === cable.from);
+                const compTo = components.find(c => c.id === cable.to);
+
+                if (compFrom && compTo) {
+                    ctx.beginPath();
+                    ctx.moveTo(compFrom.x, compFrom.y);
+                    ctx.lineTo(compTo.x, compTo.y);
+                    ctx.stroke();
+                }
+            });
+        }
+
+        // 5. Vymazanie súčiastky a jej káblov
+        function removeComponent(id) {
+            // Odstránenie z HTML
+            const el = document.getElementById(id);
+            if (el) el.remove();
+
+            // Odstránenie prepojených káblov
+            cables = cables.filter(c => c.from !== id && c.to !== id);
+            
+            // Odstránenie zo zoznamu
+            components = components.filter(c => c.id !== id);
+            
+            redrawCables();
+        }
+
+        // Fix pre prípad, že sa zmení veľkosť okna
+        window.addEventListener('resize', () => {
+            canvas.width = bgImage.clientWidth;
+            canvas.height = bgImage.clientHeight;
+            redrawCables();
+        });
+    </script>
+</body>
+</html>
