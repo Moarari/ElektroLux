@@ -10,7 +10,7 @@
         
         /* Bočný panel */
         #sidebar {
-            width: 280px; background-color: #111116; padding: 20px; 
+            width: 290px; background-color: #111116; padding: 20px; 
             display: flex; flex-direction: column; gap: 15px;
             box-shadow: 3px 0 10px rgba(0,0,0,0.5); z-index: 10; overflow-y: auto;
         }
@@ -39,7 +39,7 @@
         .component-source:hover { background-color: #2a2a35; border-color: #3498db; }
 
         /* SVG Značky v menu */
-        .symbol-preview { width: 30px; height: 30px; fill: none; stroke: #fff; stroke-width: 2; }
+        .symbol-preview { width: 30px; height: 30px; fill: none; stroke: #fff; stroke-width: 2.5; }
 
         /* Hlavná plocha */
         #canvas-container {
@@ -48,19 +48,21 @@
             background-color: #1e1e24;
         }
         #canvas-wrapper { position: relative; display: inline-block; background: #fff; }
-        #bg-image { max-width: 100%; display: block; user-select: none; pointer-events: none; opacity: 0.85; }
+        #bg-image { max-width: 100%; display: block; user-select: none; pointer-events: none; opacity: 0.9; }
         
         /* Kresliace plátno káblov */
         #cable-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
 
         /* Umiestnené súčiastky na pláne */
         .placed-component {
-            position: absolute; width: 32px; height: 32px;
+            position: absolute; width: 34px; height: 34px;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; z-index: 3; transform: translate(-50%, -50%);
             user-select: none; transition: transform 0.1s;
         }
         .placed-component:hover { transform: translate(-50%, -50%) scale(1.2); }
+        
+        /* Vzhľad značiek na bielom pôdoryse (čierne čiary kvôli kontrastu) */
         .placed-component svg { width: 100%; height: 100%; stroke: #000; stroke-width: 2.5; fill: none; }
 
         .instructions { font-size: 13px; color: #a0a0b0; line-height: 1.5; background: #1a1a24; padding: 10px; border-radius: 6px; }
@@ -78,29 +80,29 @@
         <hr>
         <p style="margin:0; font-size:14px; color:#3498db; font-weight:bold;">2. Potiahni značky na plán:</p>
         
-        <div class="component-source" draggable="true" data-type="istic">
-            <svg class="symbol-preview"><path d="M 5,15 L 12,15 L 22,5 M 20,15 L 25,15"/></svg>
-            <span>Istič / Rozvádzač</span>
+        <div class="component-source" draggable="true" data-type="rozvadzac">
+            <svg class="symbol-preview" viewBox="0 0 30 30"><rect x="4" y="6" width="22" height="18" stroke="#fff" fill="none"/><line x1="15" y1="6" x2="15" y2="24" stroke="#fff"/></svg>
+            <span>Rozvádzač (Ističe)</span>
         </div>
         
         <div class="component-source" draggable="true" data-type="zasuvka">
-            <svg class="symbol-preview"><path d="M 5,15 A 10,10 0 0,0 25,15 Z M 15,15 L 15,25"/></svg>
+            <svg class="symbol-preview" viewBox="0 0 30 30"><path d="M 5,15 A 10,10 0 0,0 25,15 Z M 15,15 L 15,26"/></svg>
             <span>Zásuvka 230V</span>
         </div>
 
         <div class="component-source" draggable="true" data-type="svetlo">
-            <svg class="symbol-preview"><path d="M 7,7 L 23,23 M 23,7 L 7,23"/></svg>
+            <svg class="symbol-preview" viewBox="0 0 30 30"><path d="M 6,6 L 24,24 M 24,6 L 6,24"/></svg>
             <span>Svietidlo (Svetlo)</span>
         </div>
 
-        <div class="component-source" draggable="true" data-type="vypinac">
-            <svg class="symbol-preview"><circle cx="15" cy="15" r="6"/><path d="M 15,9 L 15,3 L 21,3"/></svg>
-            <span>Vypínač (Jednopólový)</span>
+        <div class="component-source" draggable="true" data-type="vypinac1">
+            <svg class="symbol-preview" viewBox="0 0 30 30"><circle cx="15" cy="15" r="5"/><path d="M 15,10 L 15,3 L 22,3"/></svg>
+            <span>Vypínač (Radenie 1)</span>
         </div>
         
         <div class="component-source" draggable="true" data-type="vypinac6">
-            <svg class="symbol-preview"><circle cx="15" cy="15" r="6"/><path d="M 15,9 L 15,3 L 21,3 M 15,21 L 15,27 L 9,27"/></svg>
-            <span>Schodiskový vypínač</span>
+            <svg class="symbol-preview" viewBox="0 0 30 30"><circle cx="15" cy="15" r="5"/><path d="M 15,10 L 15,3 L 22,3 M 15,20 L 15,27 L 8,27"/></svg>
+            <span>Schodiskový (Radenie 6)</span>
         </div>
 
         <hr>
@@ -108,13 +110,12 @@
         <button id="cable-btn" class="btn">3. Zapnúť Kreslenie Káblov</button>
         
         <div class="instructions">
-            <strong>Návod na káble:</strong>
+            <strong>Návod:</strong>
             <ol style="margin: 5px 0; padding-left: 20px;">
-                <li>Klikni na tlačidlo hore (sčervenie).</li>
-                <li>Klikni na prvú značku na pláne.</li>
-                <li>Klikni na druhú značku. Kábel sa hneď nakreslí.</li>
+                <li>Umiestni značky ťahaním.</li>
+                <li>Zapni tlačidlo "Kreslenie Káblov" a kliknutím na dve značky ich prepoj.</li>
+                <li>Pre zmazanie značky vypni režim káblov a klikni na ňu.</li>
             </ol>
-            <p style="color:#e74c3c; margin-bottom:0;">* Pre zmazanie prvku vypni režim káblov a klikni naň.</p>
         </div>
     </div>
 
@@ -126,13 +127,13 @@
     </div>
 
     <script>
-        // Definícia SVG kódov pre jednotlivé značky
+        // Vektorové (SVG) definície oficiálnych značiek pre kreslenie na pláne
         const svgSymbols = {
-            istic: `<svg viewBox="0 0 30 30"><path d="M 5,15 L 12,15 L 24,6 M 22,15 L 28,15" stroke="#e74c3c"/></svg>`,
-            zasuvka: `<svg viewBox="0 0 30 30"><path d="M 5,15 A 10,10 0 0,0 25,15 Z M 15,15 L 15,28" stroke="#2ecc71"/></svg>`,
+            rozvadzac: `<svg viewBox="0 0 30 30"><rect x="4" y="6" width="22" height="18" fill="rgba(231, 76, 60, 0.2)" stroke="#e74c3c"/><line x1="15" y1="6" x2="15" y2="24" stroke="#e74c3c"/></svg>`,
+            zasuvka: `<svg viewBox="0 0 30 30"><path d="M 5,15 A 10,10 0 0,0 25,15 Z M 15,15 L 15,27" stroke="#2ecc71"/></svg>`,
             svetlo: `<svg viewBox="0 0 30 30"><path d="M 6,6 L 24,24 M 24,6 L 6,24" stroke="#f1c40f"/></svg>`,
-            vypinac: `<svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="5"/><path d="M 15,10 L 15,2 L 22,2" stroke="#9b59b6"/></svg>`,
-            vypinac6: `<svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="5"/><path d="M 15,10 L 15,2 L 22,2 M 15,20 L 15,28 L 8,28" stroke="#34495e"/></svg>`
+            vypinac1: `<svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="4"/><path d="M 15,11 L 15,3 L 22,3" stroke="#9b59b6"/></svg>`,
+            vypinac6: `<svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="4"/><path d="M 15,11 L 15,3 L 22,3 M 15,19 L 15,27 L 8,27" stroke="#34495e"/></svg>`
         };
 
         const fileInput = document.getElementById('file-input');
@@ -150,7 +151,6 @@
         let cables = [];     
         let compIdCounter = 0;
 
-        // Načítanie obrázka
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -169,7 +169,6 @@
             redrawCables();
         }
 
-        // Drag & Drop
         componentSources.forEach(source => {
             source.addEventListener('dragstart', (e) => { draggedType = source.getAttribute('data-type'); });
         });
@@ -181,7 +180,6 @@
             if (!draggedType) return;
 
             const rect = canvasWrapper.getBoundingClientRect();
-            // Presný výpočet pozície kurzora voči obrázku
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
@@ -189,7 +187,6 @@
             draggedType = null;
         });
 
-        // Vytvorenie prvku so značkou
         function createComponent(x, y, type) {
             const id = 'comp_' + compIdCounter++;
             const el = document.createElement('div');
@@ -209,16 +206,15 @@
             });
 
             canvasWrapper.appendChild(el);
-            components.push({ id, type, element: el });
-            redrawCables(); // pre istotu prekresliť
+            components.push({ id, type });
+            redrawCables();
         }
 
-        // Režim káblov
         cableBtn.addEventListener('click', () => {
             isCableMode = !isCableMode;
             if (isCableMode) {
                 cableBtn.classList.add('active');
-                cableBtn.innerText = "Režim: Spájaj klikaním";
+                cableBtn.innerText = "Mód: Klikni na 2 prvky";
             } else {
                 resetCableSelection();
             }
@@ -237,11 +233,10 @@
         function handleCableConnection(id) {
             if (!firstComponentForCable) {
                 firstComponentForCable = id;
-                document.getElementById(id).style.background = "rgba(52, 152, 219, 0.4)";
+                document.getElementById(id).style.background = "rgba(52, 152, 219, 0.3)";
                 document.getElementById(id).style.borderRadius = "50%";
             } else {
                 if (firstComponentForCable !== id) {
-                    // Pridáme kábel medzi dvoma ID
                     cables.push({ from: firstComponentForCable, to: id });
                     redrawCables();
                 }
@@ -250,19 +245,17 @@
             }
         }
 
-        // Vykresľovanie káblov - berie si reálne polohy elementov z HTML obalu
         function redrawCables() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = "#2c3e50"; // tmavosivý/čierny kábel
-            ctx.setLineDash([2, 4]); // bodkovaná čiara pre odfatovanie od stien (časté v projektoch)
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = "#ff4757"; // výrazná červená farba káblov pre dobrú viditeľnosť
+            ctx.setLineDash([4, 4]);     // prerušovaná čiara podľa zvyklostí v projektoch
 
             cables.forEach(cable => {
                 const elFrom = document.getElementById(cable.from);
                 const elTo = document.getElementById(cable.to);
 
                 if (elFrom && elTo) {
-                    // Získanie presného stredu súčiastky na základe CSS pozície
                     const x1 = parseFloat(elFrom.style.left);
                     const y1 = parseFloat(elFrom.style.top);
                     const x2 = parseFloat(elTo.style.left);
@@ -276,7 +269,6 @@
             });
         }
 
-        // Mazanie
         function removeComponent(id) {
             const el = document.getElementById(id);
             if (el) el.remove();
@@ -285,9 +277,7 @@
             redrawCables();
         }
 
-        // Sledovanie zmeny okna, aby čiary sedeli
         window.addEventListener('resize', resizeCanvas);
-        // Poistka pri štarte
         setTimeout(resizeCanvas, 500);
     </script>
 </body>
