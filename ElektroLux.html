@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elektro Plánovač - Značky</title>
+    <title>Bytový Elektro Plánovač v1.4</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
         body { margin: 0; display: flex; height: 100vh; background-color: #1e1e24; color: #fff; }
         
         /* Bočný panel */
         #sidebar {
-            width: 300px; background-color: #111116; padding: 20px; 
-            display: flex; flex-direction: column; gap: 15px;
+            width: 320px; background-color: #111116; padding: 20px; 
+            display: flex; flex-direction: column; gap: 12px;
             box-shadow: 3px 0 10px rgba(0,0,0,0.5); z-index: 10; overflow-y: auto;
         }
         #sidebar h3 { margin-top: 0; border-bottom: 2px solid #2a2a35; padding-bottom: 10px; color: #3498db; }
@@ -19,20 +19,20 @@
         .btn {
             padding: 12px; background-color: #3498db; color: white; border: none;
             border-radius: 6px; cursor: pointer; text-align: center; font-weight: bold;
-            transition: background 0.2s; text-transform: uppercase; font-size: 12px;
+            transition: background 0.2s; text-transform: uppercase; font-size: 11px;
         }
         .btn:hover { background-color: #2980b9; }
         .btn.active { background-color: #e74c3c; }
 
         /* Menu so súčiastkami */
         .component-source {
-            padding: 12px; background-color: #22222b; border: 1px solid #3a3a4a;
-            border-radius: 6px; cursor: grab; display: flex; align-items: center; gap: 20px;
-            font-weight: 500; user-select: none;
+            padding: 10px; background-color: #22222b; border: 1px solid #3a3a4a;
+            border-radius: 6px; cursor: grab; display: flex; align-items: center; gap: 15px;
+            font-weight: 500; user-select: none; font-size: 13px;
         }
         .component-source:hover { background-color: #2a2a35; border-color: #3498db; }
 
-        /* CSS Definícia značiek pre MENU (Biele na tmavom pozadí) */
+        /* CSS Definícia značiek */
         .sym { position: relative; width: 30px; height: 30px; flex-shrink: 0; }
         
         .sym-rozvadzac { border: 2px solid #ff4757; background: rgba(255, 71, 87, 0.2); }
@@ -49,252 +49,9 @@
         .sym-vypinac1::after { content: ''; position: absolute; left: 4px; top: -7px; width: 2px; height: 10px; background: #9b59b6; }
         .sym-vypinac1::before { content: ''; position: absolute; left: 4px; top: -7px; width: 6px; height: 2px; background: #9b59b6; }
 
+        .sym-vypinac5 { width: 12px; height: 12px; border: 2px solid #e67e22; border-radius: 50%; margin: 9px; }
+        .sym-vypinac5::after { content: ''; position: absolute; left: 4px; top: -7px; width: 2px; height: 10px; background: #e67e22; }
+        .sym-vypinac5::before { content: ''; position: absolute; left: 4px; top: -7px; width: 6px; height: 2px; background: #e67e22; box-shadow: 0 4px 0 #e67e22; }
+
         .sym-vypinac6 { width: 12px; height: 12px; border: 2px solid #00d2d3; border-radius: 50%; margin: 9px; }
         .sym-vypinac6::after { content: ''; position: absolute; left: 4px; top: -7px; width: 2px; height: 22px; background: #00d2d3; }
-        .sym-vypinac6::before { content: ''; position: absolute; left: 4px; top: -7px; width: 6px; height: 2px; background: #00d2d3; }
-        .sym-vypinac6-hook { position: absolute; left: 0px; top: 13px; width: 6px; height: 2px; background: #00d2d3; }
-
-        /* Plocha s pôdorysom */
-        #canvas-container {
-            flex-grow: 1; position: relative; overflow: auto;
-            display: flex; align-items: flex-start; justify-content: flex-start; padding: 20px;
-        }
-        #canvas-wrapper { position: relative; display: inline-block; background: #fff; }
-        #bg-image { max-width: 100%; display: block; user-select: none; pointer-events: none; }
-        #cable-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
-
-        /* Elementy umiestnené na bielej ploche (Čierne kontúry pre viditeľnosť) */
-        .placed-component { position: absolute; width: 30px; height: 30px; z-index: 3; transform: translate(-50%, -50%); cursor: pointer; }
-        
-        .placed-component .sym-rozvadzac { border-color: #000; background: rgba(0,0,0,0.1); }
-        .placed-component .sym-rozvadzac::after { background: #000; }
-        
-        .placed-component .sym-zasuvka { border-color: #000; }
-        .placed-component .sym-zasuvka::after { background: #000; }
-        
-        .placed-component .sym-svetlo::before, .placed-component .sym-svetlo::after { background: #000; }
-        
-        .placed-component .sym-vypinac1 { border-color: #000; }
-        .placed-component .sym-vypinac1::after, .placed-component .sym-vypinac1::before { background: #000; }
-        
-        .placed-component .sym-vypinac6 { border-color: #000; }
-        .placed-component .sym-vypinac6::after, .placed-component .sym-vypinac6::before { background: #000; }
-        .placed-component .sym-vypinac6-hook { background: #000; }
-
-        .instructions { font-size: 13px; color: #a0a0b0; line-height: 1.4; background: #1a1a24; padding: 10px; border-radius: 6px; }
-        hr { border: 0; height: 1px; background: #2a2a35; width: 100%; }
-    </style>
-</head>
-<body>
-
-    <div id="sidebar">
-        <h3>Elektroinštalácia v1.2</h3>
-        
-        <label for="file-input" class="btn">1. Načítať pôdorys</label>
-        <input type="file" id="file-input" accept="image/*" style="display:none;">
-
-        <hr>
-        <p style="margin:0; font-size:13px; color:#3498db; font-weight:bold;">2. Potiahni značky na plán:</p>
-        
-        <div class="component-source" draggable="true" data-type="rozvadzac">
-            <div class="sym sym-rozvadzac"></div>
-            <span>Rozvádzač (Ističe)</span>
-        </div>
-        
-        <div class="component-source" draggable="true" data-type="zasuvka">
-            <div class="sym sym-zasuvka"></div>
-            <span>Zásuvka 230V</span>
-        </div>
-
-        <div class="component-source" draggable="true" data-type="svetlo">
-            <div class="sym sym-svetlo"></div>
-            <span>Svietidlo (Svetlo)</span>
-        </div>
-
-        <div class="component-source" draggable="true" data-type="vypinac1">
-            <div class="sym sym-vypinac1"></div>
-            <span>Vypínač (Radenie 1)</span>
-        </div>
-        
-        <div class="component-source" draggable="true" data-type="vypinac6">
-            <div class="sym sym-vypinac6"><div class="sym-vypinac6-hook"></div></div>
-            <span>Schodiskový (Rad. 6)</span>
-        </div>
-
-        <hr>
-
-        <button id="cable-btn" class="btn">3. Zapnúť Kreslenie Káblov</button>
-        
-        <div class="instructions">
-            <strong>Návod:</strong>
-            <ul style="margin:5px 0; padding-left:15px;">
-                <li>Umiestni značky potiahnutím myšou.</li>
-                <li>Klikni na "Kreslenie Káblov" (sčervenie) a kliknutím prepoj dve značky.</li>
-                <li>Pre zmazanie vypni režim káblov a klikni na značku.</li>
-            </ul>
-        </div>
-    </div>
-
-    <div id="canvas-container">
-        <div id="canvas-wrapper">
-            <img id="bg-image" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='900' height='600'><rect width='100%' height='100%' fill='%23ffffff'/><text x='50%' y='50%' font-family='Arial' font-size='20' fill='%23aaaaaa' text-anchor='middle'>← Najprv vľavo klikni na 'Načítať pôdorys'</text></svg>" alt="Pôdorys">
-            <canvas id="cable-canvas"></canvas>
-        </div>
-    </div>
-
-    <script>
-        // HTML šablóny pre čisté CSS značky na pláne
-        const htmlSymbols = {
-            rozvadzac: `<div class="sym sym-rozvadzac"></div>`,
-            zasuvka: `<div class="sym sym-zasuvka"></div>`,
-            svetlo: `<div class="sym sym-svetlo"></div>`,
-            vypinac1: `<div class="sym sym-vypinac1"></div>`,
-            vypinac6: `<div class="sym sym-vypinac6"><div class="sym-vypinac6-hook"></div></div>`
-        };
-
-        const fileInput = document.getElementById('file-input');
-        const bgImage = document.getElementById('bg-image');
-        const canvasWrapper = document.getElementById('canvas-wrapper');
-        const canvas = document.getElementById('cable-canvas');
-        const ctx = canvas.getContext('2d');
-        const cableBtn = document.getElementById('cable-btn');
-        const componentSources = document.querySelectorAll('.component-source');
-
-        let draggedType = null;
-        let isCableMode = false;
-        let firstComponentForCable = null;
-        let components = []; 
-        let cables = [];     
-        let compIdCounter = 0;
-
-        fileInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    bgImage.src = event.target.result;
-                    bgImage.onload = resizeCanvas;
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-
-        function resizeCanvas() {
-            canvas.width = bgImage.offsetWidth;
-            canvas.height = bgImage.offsetHeight;
-            redrawCables();
-        }
-
-        componentSources.forEach(source => {
-            source.addEventListener('dragstart', (e) => { draggedType = source.getAttribute('data-type'); });
-        });
-
-        canvasWrapper.addEventListener('dragover', (e) => { e.preventDefault(); });
-
-        canvasWrapper.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (!draggedType) return;
-
-            const rect = canvasWrapper.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            createComponent(x, y, draggedType);
-            draggedType = null;
-        });
-
-        function createComponent(x, y, type) {
-            const id = 'comp_' + compIdCounter++;
-            const el = document.createElement('div');
-            el.className = 'placed-component';
-            el.id = id;
-            el.style.left = `${x}px`;
-            el.style.top = `${y}px`;
-            el.innerHTML = htmlSymbols[type];
-
-            el.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (isCableMode) {
-                    handleCableConnection(id);
-                } else {
-                    removeComponent(id);
-                }
-            });
-
-            canvasWrapper.appendChild(el);
-            components.push({ id, type });
-            redrawCables();
-        }
-
-        cableBtn.addEventListener('click', () => {
-            isCableMode = !isCableMode;
-            if (isCableMode) {
-                cableBtn.classList.add('active');
-                cableBtn.innerText = "MÓD: SPÁJAJ KLIKNUTÍM";
-            } else {
-                resetCableSelection();
-            }
-        });
-
-        function resetCableSelection() {
-            isCableMode = false;
-            cableBtn.classList.remove('active');
-            cableBtn.innerText = "3. Zapnúť Kreslenie Káblov";
-            if (firstComponentForCable) {
-                document.getElementById(firstComponentForCable).style.background = "none";
-                firstComponentForCable = null;
-            }
-        }
-
-        function handleCableConnection(id) {
-            if (!firstComponentForCable) {
-                firstComponentForCable = id;
-                document.getElementById(id).style.background = "rgba(52, 152, 219, 0.4)";
-                document.getElementById(id).style.borderRadius = "50%";
-            } else {
-                if (firstComponentForCable !== id) {
-                    cables.push({ from: firstComponentForCable, to: id });
-                    redrawCables();
-                }
-                document.getElementById(firstComponentForCable).style.background = "none";
-                firstComponentForCable = null;
-            }
-        }
-
-        function redrawCables() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = "#ff3333"; // Výrazná červená pre káble
-            ctx.setLineDash([6, 4]);     // Projektová prerušovaná čiara
-
-            cables.forEach(cable => {
-                const elFrom = document.getElementById(cable.from);
-                const elTo = document.getElementById(cable.to);
-
-                if (elFrom && elTo) {
-                    const x1 = parseFloat(elFrom.style.left);
-                    const y1 = parseFloat(elFrom.style.top);
-                    const x2 = parseFloat(elTo.style.left);
-                    const y2 = parseFloat(elTo.style.top);
-
-                    ctx.beginPath();
-                    ctx.moveTo(x1, y1);
-                    ctx.lineTo(x2, y2);
-                    ctx.stroke();
-                }
-            });
-        }
-
-        function removeComponent(id) {
-            const el = document.getElementById(id);
-            if (el) el.remove();
-            cables = cables.filter(c => c.from !== id && c.to !== id);
-            components = components.filter(c => c.id !== id);
-            redrawCables();
-        }
-
-        window.addEventListener('resize', resizeCanvas);
-        setTimeout(resizeCanvas, 500);
-    </script>
-</body>
-</html>
